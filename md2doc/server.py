@@ -1,21 +1,9 @@
 """MCP Server for Markdown to DOCX conversion."""
 
-import asyncio
-import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
-from mcp.server import Server
-from mcp.server.models import InitializationOptions
-from mcp.server.stdio import stdio_server
-from mcp.types import (
-    CallToolRequest,
-    CallToolResult,
-    ListToolsRequest,
-    ListToolsResult,
-    Tool,
-    TextContent,
-)
+from mcp.server.fastmcp import FastMCP
 
 from .api_client import ConversionAPIClient
 from .models import ConvertTextRequest, ConvertTextResponse, TemplatesResponse
@@ -24,113 +12,45 @@ from .models import ConvertTextRequest, ConvertTextResponse, TemplatesResponse
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize the MCP server
-server = Server("md2doc")
+# Initialize the FastMCP server
+mcp = FastMCP("md2doc")
 
-# Initialize API client
-api_client = ConversionAPIClient()
-
-
-@server.list_tools()
-async def handle_list_tools() -> ListToolsResult:
-    """List available tools."""
-    return ListToolsResult(
-        tools=[
-            Tool(
-                name="convert_markdown_to_docx",
-                description="Convert markdown text to DOCX format and save to Downloads directory",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "content": {
-                            "type": "string",
-                            "description": "Markdown content to convert"
-                        },
-                        "filename": {
-                            "type": "string",
-                            "description": "Output filename (without extension), defaults to 'document'"
-                        },
-                        "template_name": {
-                            "type": "string",
-                            "description": "Template name to use (optional)"
-                        },
-                        "language": {
-                            "type": "string",
-                            "description": "Language code (e.g., 'en', 'zh'), defaults to 'en'"
-                        },
-                        "convert_mermaid": {
-                            "type": "boolean",
-                            "description": "Whether to convert Mermaid diagrams, defaults to false"
-                        }
-                    },
-                    "required": ["content"]
-                }
-            ),
-            Tool(
-                name="list_templates",
-                description="Get available templates organized by language",
-                inputSchema={
-                    "type": "object",
-                    "properties": {},
-                    "required": []
-                }
-            )
-        ]
-    )
+# Initialize API client lazily
+_api_client = None
 
 
-@server.call_tool()
-async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> CallToolResult:
-    """Handle tool calls."""
+def get_api_client() -> ConversionAPIClient:
+    """Get or create the API client."""
+    global _api_client
+    if _api_client is None:
+        _api_client = ConversionAPIClient()
+    return _api_client
+
+
+@mcp.tool()
+async def convert_markdown_to_docx(
+    content: str,
+    filename: str = "document",
+    template_name: Optional[str] = None,
+    language: str = "en",
+    convert_mermaid: bool = False
+) -> str:
+    """Convert markdown text to DOCX format and save to Downloads directory.
+    
+    Args:
+        content: Markdown content to convert
+        filename: Output filename (without extension), defaults to 'document'
+        template_name: Template name to use (optional)
+        language: Language code (e.g., 'en', 'zh'), defaults to 'en'
+        convert_mermaid: Whether to convert Mermaid diagrams, defaults to false
+    
+    Returns:
+        Success message with file path or error message
+    """
+    if not content:
+        return "Error: Content is required"
+    
     try:
-        if name == "convert_markdown_to_docx":
-            return await handle_convert_markdown_to_docx(arguments)
-        elif name == "list_templates":
-            return await handle_list_templates()
-        else:
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text=f"Unknown tool: {name}"
-                    )
-                ],
-                isError=True
-            )
-    except Exception as e:
-        logger.error(f"Error handling tool call {name}: {e}")
-        return CallToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=f"Error: {str(e)}"
-                )
-            ],
-            isError=True
-        )
-
-
-async def handle_convert_markdown_to_docx(arguments: Dict[str, Any]) -> CallToolResult:
-    """Handle markdown to DOCX conversion."""
-    try:
-        # Parse arguments
-        content = arguments.get("content", "")
-        filename = arguments.get("filename", "document")
-        template_name = arguments.get("template_name")
-        language = arguments.get("language", "en")
-        convert_mermaid = arguments.get("convert_mermaid", False)
-        
-        if not content:
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text="Error: Content is required"
-                    )
-                ],
-                isError=True
-            )
-        
         # Create request
         request = ConvertTextRequest(
             content=content,
@@ -140,45 +60,29 @@ async def handle_convert_markdown_to_docx(arguments: Dict[str, Any]) -> CallTool
             convert_mermaid=convert_mermaid
         )
         
-        # Convert markdown to DOCX
+        # Get API client and convert markdown to DOCX
+        api_client = get_api_client()
         response = await api_client.convert_text(request)
         
         if response.success:
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text=f"✅ Successfully converted markdown to DOCX!\n\n📁 File saved to: {response.file_path}\n\nYou can now open the document in Microsoft Word or any compatible application."
-                    )
-                ]
-            )
+            return f"✅ Successfully converted markdown to DOCX!\n\n📁 File saved to: {response.file_path}\n\nYou can now open the document in Microsoft Word or any compatible application."
         else:
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text=f"❌ Conversion failed: {response.error_message}"
-                    )
-                ],
-                isError=True
-            )
+            return f"❌ Conversion failed: {response.error_message}"
             
     except Exception as e:
         logger.error(f"Error converting markdown to DOCX: {e}")
-        return CallToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=f"Error: {str(e)}"
-                )
-            ],
-            isError=True
-        )
+        return f"Error: {str(e)}"
 
 
-async def handle_list_templates() -> CallToolResult:
-    """Handle template listing."""
+@mcp.tool()
+async def list_templates() -> str:
+    """Get available templates organized by language.
+    
+    Returns:
+        List of available templates or error message
+    """
     try:
+        api_client = get_api_client()
         response = await api_client.get_templates()
         
         if response.templates:
@@ -191,54 +95,14 @@ async def handle_list_templates() -> CallToolResult:
                     template_text += f"  • {template}\n"
                 template_text += "\n"
             
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text=template_text
-                    )
-                ]
-            )
+            return template_text
         else:
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text="No templates available or unable to fetch templates."
-                    )
-                ]
-            )
+            return "No templates available or unable to fetch templates."
             
     except Exception as e:
         logger.error(f"Error listing templates: {e}")
-        return CallToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=f"Error fetching templates: {str(e)}"
-                )
-            ],
-            isError=True
-        )
-
-
-async def main():
-    """Main entry point."""
-    # Run the server
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="md2doc",
-                server_version="0.1.0",
-                capabilities=server.get_capabilities(
-                    notification_options=None,
-                    experimental_capabilities=None,
-                ),
-            ),
-        )
+        return f"Error fetching templates: {str(e)}"
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    mcp.run() 
