@@ -2,6 +2,8 @@
 
 A Model Context Protocol (MCP) server that converts Markdown text to DOCX format using an external conversion service.
 
+![md2doc Demo](images/md2doc.png)
+
 ## Features
 
 - Convert Markdown text to DOCX format
@@ -20,7 +22,7 @@ A Model Context Protocol (MCP) server that converts Markdown text to DOCX format
    source $HOME/.local/bin/env
    ```
 
-   Or install via Homebrew:
+   Or install via Homebrew (Only Mac):
    ```bash
    brew install uv
    ```
@@ -40,8 +42,48 @@ A Model Context Protocol (MCP) server that converts Markdown text to DOCX format
 
 ## Environment Variables
 
-Set the following environment variable:
-- `DEEP_SHARE_API_KEY`: Your API key for the conversion service
+### Setting Environment Variables
+
+#### macOS/Linux
+```bash
+# Temporary (current session only)
+export DEEP_SHARE_API_KEY="your-api-key-here"
+
+# Permanent - add to ~/.zshrc or ~/.bashrc
+echo 'export DEEP_SHARE_API_KEY="your-api-key-here"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+#### Windows (Command Prompt)
+```cmd
+# Temporary (current session only)
+set DEEP_SHARE_API_KEY=your-api-key-here
+
+# Permanent
+setx DEEP_SHARE_API_KEY "your-api-key-here"
+```
+
+#### Windows (PowerShell)
+```powershell
+# Temporary (current session only)
+$env:DEEP_SHARE_API_KEY="your-api-key-here"
+
+# Permanent
+[Environment]::SetEnvironmentVariable("DEEP_SHARE_API_KEY", "your-api-key-here", "User")
+```
+
+### API Key
+
+#### Free Trial API Key
+Use this key for testing:
+```
+f4e8fe6f-e39e-486f-b7e7-e037d2ec216f
+```
+
+#### Purchase API Key - Super Low Price!
+
+- [Purchase Link](https://www.deepshare.app/purchase-en.html)
+- [中国大陆购买](https://www.deepshare.app/purchase.html)
 
 ## Usage
 
@@ -53,8 +95,15 @@ Add this to your MCP client configuration:
 {
   "mcpServers": {
     "md2doc": {
-      "command": "python",
-      "args": ["-m", "md2doc.server"],
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/PATH/TO/md2docx-mcp",
+        "run",
+        "python",
+        "-m",
+        "md2doc.server"
+      ],
       "env": {
         "DEEP_SHARE_API_KEY": "your-api-key-here"
       }
@@ -67,13 +116,6 @@ Add this to your MCP client configuration:
 
 - `convert_markdown_to_docx`: Convert markdown text to DOCX
 - `list_templates`: Get available templates by language
-
-## API Reference
-
-The server uses the following external API endpoints:
-
-- `POST /convert-text`: Convert markdown to DOCX
-- `GET /templates`: Get available templates
 
 ## License
 
