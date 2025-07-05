@@ -2,7 +2,14 @@
   "mcpServers": {
     "md2doc": {
       "command": "uv",
-      "args": ["run", "python", "-m", "md2doc.server"],
+      "args": [
+        "--directory",
+        "/PATH/TO/md2docx-mcp",
+        "run",
+        "python",
+        "-m",
+        "md2doc.server"
+      ],
       "env": {
         "DEEP_SHARE_API_KEY": "your-api-key-here"
       }

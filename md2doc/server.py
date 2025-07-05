@@ -104,5 +104,10 @@ async def list_templates() -> str:
         return f"Error fetching templates: {str(e)}"
 
 
+def main():
+    """Main entry point for the MCP server."""
+    mcp.run()
+
+
 if __name__ == "__main__":
-    mcp.run() 
+    main() 

@@ -168,3 +168,5 @@ cython_debug/
 Thumbs.db
 ehthumbs.db
 Desktop.ini 
+
+mcp-config-dev.json

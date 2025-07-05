@@ -9,7 +9,7 @@ from .models import ConvertTextRequest, ConvertTextResponse, TemplatesResponse
 class ConversionAPIClient:
     """Client for the external markdown to DOCX conversion API."""
     
-    def __init__(self, base_url: str = "http://127.0.0.1:8000"):
+    def __init__(self, base_url: str = "https://api.deepshare.app"):
         """Initialize the API client.
         
         Args:

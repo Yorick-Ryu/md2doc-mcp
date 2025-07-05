@@ -4,7 +4,7 @@ import os
 import pytest
 from unittest.mock import AsyncMock, patch, Mock
 from md2doc.api_client import ConversionAPIClient
-from md2doc.models import ConvertTextRequest, ConvertTextResponse, TemplatesResponse
+from md2doc.models import ConvertTextRequest, TemplatesResponse
 
 
 class TestConversionAPIClient:
@@ -15,7 +15,7 @@ class TestConversionAPIClient:
         with patch.dict(os.environ, {"DEEP_SHARE_API_KEY": "test-key"}):
             client = ConversionAPIClient()
             assert client.api_key == "test-key"
-            assert client.base_url == "http://127.0.0.1:8000"
+            assert client.base_url == "https://api.deepshare.app"
     
     def test_init_without_api_key(self):
         """Test initialization without API key raises error."""
