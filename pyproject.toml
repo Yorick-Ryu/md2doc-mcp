@@ -1,9 +1,23 @@
 [project]
 name = "md2doc"
-version = "0.1.0"
+version = "0.1.1"
 description = "Markdown to DOCX conversion MCP Server"
+readme = "README.md"
+license = {text = "MIT"}
 authors = [
     {name = "Yorick", email = "yurui0216@gmail.com"}
+]
+keywords = ["mcp", "markdown", "docx", "conversion", "model-context-protocol"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup",
 ]
 dependencies = [
     "mcp>=1.0.0",
@@ -20,9 +34,54 @@ dev = [
     "isort>=5.0.0",
 ]
 
+[project.scripts]
+md2doc = "md2doc.server:main"
+
+[project.urls]
+Homepage = "https://github.com/Yorick-Ryu/md2doc-mcp"
+Issues = "https://github.com/Yorick-Ryu/md2doc-mcp/issues"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["md2doc"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.git",
+    "/.venv",
+    "/dist", 
+    "/build",
+    "/__pycache__",
+    "*.pyc",
+    "*.pyo",
+    "*.pyd",
+    ".DS_Store",
+    "Thumbs.db",
+    "/tests",
+    "test_*.py",
+    "*_test.py",
+    "dev-setup.sh",
+    "install.sh", 
+    "publish.sh",
+    "example_usage.py",
+    "mcp-config*.json",
+    "PUBLISHING.md",
+    "uv.lock",
+    ".gitignore",
+    ".vscode/",
+    ".idea/",
+    "*.swp",
+    "*.swo",
+    "*~",
+    ".coverage",
+    ".pytest_cache/",
+    ".mypy_cache/",
+    ".ruff_cache/",
+    "*.log"
+]
 
 [tool.black]
 line-length = 88

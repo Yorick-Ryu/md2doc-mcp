@@ -1,8 +1,11 @@
 # md2doc - Markdown to DOCX MCP Server
 
+[![PyPI version](https://badge.fury.io/py/md2doc.svg)](https://badge.fury.io/py/md2doc)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A Model Context Protocol (MCP) server that converts Markdown text to DOCX format using an external conversion service.
 
-<img src="images/md2doc.png" alt="md2doc Demo" width="600" style="max-width: 100%; height: auto;">
+<img src="https://raw.githubusercontent.com/Yorick-Ryu/md2doc-mcp/master/images/md2doc.png" alt="md2doc Demo" width="600" style="max-width: 100%; height: auto;">
 
 ## Features
 
@@ -12,107 +15,115 @@ A Model Context Protocol (MCP) server that converts Markdown text to DOCX format
 - Automatic file download to user's Downloads directory
 - Template listing and management
 
-## Installation
+## Usage
 
-### Prerequisites
+### Cherry Studio
 
-1. Install [uv](https://github.com/astral-sh/uv) (recommended):
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   source $HOME/.local/bin/env
+1. Open Cherry Studio
+2. Go to Settings → MCP
+3. Add the server configuration:
+   ```json
+   {
+     "mcpServers": {
+       "md2doc": {
+         "command": "uvx",
+         "args": ["md2doc"],
+         "env": {
+           "DEEP_SHARE_API_KEY": "your-api-key-here"
+         }
+       }
+     }
+   }
    ```
 
-   Or install via Homebrew (Only Mac):
-   ```bash
-   brew install uv
+### Claude Desktop
+
+1. Open your Claude Desktop configuration file:
+   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+2. Add the md2doc server:
+   ```json
+   {
+     "mcpServers": {
+       "md2doc": {
+         "command": "uvx",
+         "args": ["md2doc"],
+         "env": {
+           "DEEP_SHARE_API_KEY": "your-api-key-here"
+         }
+       }
+     }
+   }
    ```
 
-### Install Dependencies
+3. Restart Claude Desktop
 
-1. Clone this repository
-2. Install dependencies using uv (recommended):
-   ```bash
-   uv pip install -e .
-   ```
+### Command Line (Quick Start)
 
-   Or using traditional pip:
-   ```bash
-   pip install -e .
-   ```
+For immediate use without any client setup:
 
-## Environment Variables
-
-### Setting Environment Variables
-
-#### macOS/Linux
 ```bash
-# Temporary (current session only)
-export DEEP_SHARE_API_KEY="your-api-key-here"
+# Install and run the server
+uvx md2doc
 
-# Permanent - add to ~/.zshrc or ~/.bashrc
-echo 'export DEEP_SHARE_API_KEY="your-api-key-here"' >> ~/.zshrc
-source ~/.zshrc
+# Or with environment variable
+DEEP_SHARE_API_KEY="your-api-key-here" uvx md2doc
 ```
 
-#### Windows (Command Prompt)
-```cmd
-# Temporary (current session only)
-set DEEP_SHARE_API_KEY=your-api-key-here
+### Python Integration
 
-# Permanent
-setx DEEP_SHARE_API_KEY "your-api-key-here"
+You can also use md2doc directly in your Python projects:
+
+```python
+import asyncio
+from md2doc.api_client import ConversionAPIClient
+from md2doc.models import ConvertTextRequest
+
+async def convert_markdown():
+    client = ConversionAPIClient()
+    
+    request = ConvertTextRequest(
+        content="# Hello World\n\nThis is **markdown** content.",
+        filename="example",
+        language="en",
+        template_name="thesis"
+    )
+    
+    response = await client.convert_text(request)
+    if response.success:
+        print(f"File saved to: {response.file_path}")
+
+# Run the conversion
+asyncio.run(convert_markdown())
 ```
 
-#### Windows (PowerShell)
-```powershell
-# Temporary (current session only)
-$env:DEEP_SHARE_API_KEY="your-api-key-here"
+### Other MCP Clients
 
-# Permanent
-[Environment]::SetEnvironmentVariable("DEEP_SHARE_API_KEY", "your-api-key-here", "User")
+The server works with any MCP-compatible client. Configure it to run:
+```bash
+uvx md2doc
 ```
 
-### API Key
+With environment variables:
+```bash
+DEEP_SHARE_API_KEY="your-api-key-here" uvx md2doc
+```
 
-#### Free Trial API Key
+## API Key
+
+### Free Trial API Key
 Use this key for testing:
 ```
 f4e8fe6f-e39e-486f-b7e7-e037d2ec216f
 ```
 
-#### Purchase API Key - Super Low Price!
+### Purchase API Key - Super Low Price!
 
 - [Purchase Link](https://www.deepshare.app/purchase-en.html)
 - [中国大陆购买](https://www.deepshare.app/purchase.html)
 
-## Usage
-
-### As an MCP Server
-
-Add this to your MCP client configuration:
-
-```json
-{
-  "mcpServers": {
-    "md2doc": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "/PATH/TO/md2docx-mcp",
-        "run",
-        "python",
-        "-m",
-        "md2doc.server"
-      ],
-      "env": {
-        "DEEP_SHARE_API_KEY": "your-api-key-here"
-      }
-    }
-  }
-}
-```
-
-### Available Tools
+## Available Tools
 
 - `convert_markdown_to_docx`: Convert markdown text to DOCX
 - `list_templates`: Get available templates by language
