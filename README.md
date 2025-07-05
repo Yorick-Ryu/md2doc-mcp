@@ -2,7 +2,7 @@
 
 A Model Context Protocol (MCP) server that converts Markdown text to DOCX format using an external conversion service.
 
-![md2doc Demo](images/md2doc.png)
+<img src="images/md2doc.png" alt="md2doc Demo" width="600" style="max-width: 100%; height: auto;">
 
 ## Features
 
