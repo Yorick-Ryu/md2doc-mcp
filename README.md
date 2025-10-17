@@ -1,6 +1,7 @@
 # md2doc - Markdown to DOCX MCP Server
 
 [![PyPI version](https://badge.fury.io/py/md2doc.svg)](https://badge.fury.io/py/md2doc)
+[![MCP Badge](https://lobehub.com/badge/mcp/yorick-ryu-md2doc-mcp)](https://lobehub.com/mcp/yorick-ryu-md2doc-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A Model Context Protocol (MCP) server that converts Markdown text to DOCX format using an external conversion service.
