@@ -2,7 +2,6 @@
 
 import os
 import httpx
-from typing import Dict, List, Optional
 from .models import ConvertTextRequest, ConvertTextResponse, TemplatesResponse
 
 

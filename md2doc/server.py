@@ -6,7 +6,7 @@ from typing import Optional
 from mcp.server.fastmcp import FastMCP
 
 from .api_client import ConversionAPIClient
-from .models import ConvertTextRequest, ConvertTextResponse, TemplatesResponse
+from .models import ConvertTextRequest
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
