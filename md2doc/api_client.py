@@ -38,12 +38,12 @@ class ConversionAPIClient:
             payload = {
                 "content": request.content,
                 "filename": request.filename,
+                "template_name": request.template_name,
                 "language": request.language,
-                "convert_mermaid": request.convert_mermaid
+                "convert_mermaid": request.convert_mermaid,
+                "remove_hr": request.remove_hr,
+                "compat_mode": request.compat_mode
             }
-            
-            if request.template_name:
-                payload["template_name"] = request.template_name
             
             try:
                 response = await client.post(

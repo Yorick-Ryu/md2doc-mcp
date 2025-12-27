@@ -63,9 +63,11 @@ This document demonstrates the conversion capabilities of the md2doc server.
     request = ConvertTextRequest(
         content=markdown_content,
         filename="sample_document",
-        language="en",
-        template_name="thesis",  # Optional: use a specific template
-        convert_mermaid=False
+        language="zh",
+        template_name="templates",
+        convert_mermaid=False,
+        remove_hr=False,
+        compat_mode=True
     )
     
     print("Converting markdown to DOCX...")

@@ -87,8 +87,10 @@ async def convert_markdown():
     request = ConvertTextRequest(
         content="# Hello World\n\nThis is **markdown** content.",
         filename="example",
-        language="en",
-        template_name="thesis"
+        language="zh",
+        template_name="templates",
+        remove_hr=False,
+        compat_mode=True
     )
     
     response = await client.convert_text(request)
