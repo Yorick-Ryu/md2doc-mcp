@@ -71,7 +71,10 @@ async def convert_markdown_to_docx(
         response = await api_client.convert_text(request)
         
         if response.success:
-            return f"✅ Successfully converted markdown to DOCX!\n\n📁 File saved to: {response.file_path}\n\nYou can now open the document in Microsoft Word or any compatible application."
+            if response.file_path.startswith("http"):
+                return f"✅ Successfully converted markdown to DOCX!\n\n🔗 Download Link: {response.file_path}\n\n*Note: This link is temporary. Please download it to your local machine.*"
+            else:
+                return f"✅ Successfully converted markdown to DOCX!\n\n📁 File saved to: {response.file_path}\n\nYou can now open the document in Microsoft Word or any compatible application."
         else:
             return f"❌ Conversion failed: {response.error_message}"
             

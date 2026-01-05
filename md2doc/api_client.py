@@ -46,32 +46,40 @@ class ConversionAPIClient:
             }
             
             try:
+                # Decide which endpoint to use
+                is_remote = os.getenv("MCP_SAVE_REMOTE", "false").lower() == "true"
+                endpoint = "/convert-text-to-url" if is_remote else "/convert-text"
+                
                 response = await client.post(
-                    f"{self.base_url}/convert-text",
+                    f"{self.base_url}{endpoint}",
                     headers=headers,
                     json=payload,
                     timeout=60.0
                 )
                 
                 if response.status_code == 200:
-                    # The API returns the DOCX file as binary data
-                    docx_data = response.content
+                    data = response.json() if is_remote else response.content
                     
-                    # Save to Downloads directory
-                    downloads_dir = self._get_downloads_directory()
-                    filename = f"{request.filename}.docx"
-                    file_path = os.path.join(downloads_dir, filename)
-                    
-                    # Ensure unique filename
-                    file_path = self._ensure_unique_filename(file_path)
-                    
-                    with open(file_path, "wb") as f:
-                        f.write(docx_data)
-                    
-                    return ConvertTextResponse(
-                        success=True,
-                        file_path=file_path
-                    )
+                    if is_remote:
+                        # Backend returned a JSON with {"url": "..."}
+                        return ConvertTextResponse(
+                            success=True,
+                            file_path=data.get("url")
+                        )
+                    else:
+                        # Backend returned binary DOCX
+                        downloads_dir = self._get_downloads_directory()
+                        filename = f"{request.filename}.docx"
+                        file_path = os.path.join(downloads_dir, filename)
+                        file_path = self._ensure_unique_filename(file_path)
+                        
+                        with open(file_path, "wb") as f:
+                            f.write(data)
+                        
+                        return ConvertTextResponse(
+                            success=True,
+                            file_path=file_path
+                        )
                 else:
                     return ConvertTextResponse(
                         success=False,

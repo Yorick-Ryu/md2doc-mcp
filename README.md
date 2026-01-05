@@ -113,6 +113,20 @@ With environment variables:
 DEEP_SHARE_API_KEY="your-api-key-here" uvx md2doc
 ```
 
+### Cloud Deployment (Remote Server)
+
+When deploying this MCP server on a cloud server (VPS/Docker), set `MCP_SAVE_REMOTE=true` to return a temporary download link instead of saving to a local directory:
+
+```bash
+# In your cloud environment
+export DEEP_SHARE_API_KEY="your-api-key-here"
+export MCP_SAVE_REMOTE=true
+
+uvx md2doc
+```
+
+The server will provide a download link for the converted document.
+
 ## API Key
 
 ### Free Trial API Key
